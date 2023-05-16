@@ -8,6 +8,11 @@ class Transcriber:
     
     #TODO different path for large files
     #TODO read from cloud
+    #TODO error handling
+    #       url is formatted for a local file but the file does not exist
+    #       invalid file format
+    #       network error for links to podcast audio eg 502 Bad gateway
+    #       empty/corrupted file
     def read_from_url(self, url):
         #wrapper around openai whisper transcription service to read from 
         # given url and returns transcription
