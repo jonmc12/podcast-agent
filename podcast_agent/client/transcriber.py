@@ -1,7 +1,9 @@
+import tempfile
+import openai
+import os
+
 class Transcriber:
     def __init__(self):
-        import openai
-        import os
         openai.api_key = os.environ['OPENAI_API_KEY']
     
     #TODO different path for large files
@@ -13,14 +15,10 @@ class Transcriber:
         #url: location of audio file
         #returns: text transcription of file
 
-        import openai
-        import os
-
         if os.path.exists(url):
             transcript = self.local_file_to_transcription(open(url, "rb"))
         
         elif url.startswith('https://'):
-            import tempfile
             if url.startswith('https://www.listennotes'):
                 import requests
                 audio_file = requests.get(url)
@@ -36,8 +34,7 @@ class Transcriber:
     def local_file_to_transcription(self, fileToTranscribe):
         #call openai transcription API on given file
         #
-        #url: file like object
+        #fileToTranscribe: file like object
         #returns: text transcription of file
-        import openai
         
         return  openai.Audio.transcribe("whisper-1", fileToTranscribe)
