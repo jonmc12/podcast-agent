@@ -34,40 +34,61 @@ class TranscriberService:
             url=url,
         )
 
-    def transcribe_and_upload(self):
+    def download_podcast(self, audio_url: str, filename: str) -> bool:
+        """
+        Download a podcast episode.
+        """
+        audio_response = requests.get(audio_url)
+        if audio_response.status_code == 200:
+            with open(filename, "wb") as file:
+                for chunk in audio_response.iter_content(chunk_size=1024):
+                    file.write(chunk)
+            print("Download from Podcast API completed.")
+            return True
+        else:
+            print("Failed to download file.")
+            return False
+
+    def transcribe_and_upload(self, episode_id: str):
         """
         Transcribe an mp3 from a ListenNotes URL and upload to Supabase
         """
         podcast_api_service = PodcastApiService()
+        supabase_service = SupabaseService()
         loop = asyncio.get_event_loop()
-        # transcription = self.transcribe_from_url(url=url)
         episode_response = loop.run_until_complete(podcast_api_service.get_episode(
-            id="87a935f22138437baa4b0a1043895e9b",
+            id=episode_id,
             show_transcript=1
         ))
 
         audio_url = episode_response["audio"]
+        audio_filename = f"podcast_{episode_id}.mp3"
+        transcription_filename = f"podcast_transcript_{episode_id}.txt"
 
         if episode_response["transcript"] is not None:
             transcription = episode_response["transcript"] 
         else:
-            audio_response = requests.get(audio_url)
-            if audio_response.status_code == 200:
-                with open("podcast.mp3", "wb") as file:
-                    for chunk in audio_response.iter_content(chunk_size=1024):
-                        file.write(chunk)
-                print("Download completed.")
+            if self.download_podcast(audio_url, audio_filename):
+                audio_file_response = supabase_service.upload_file(
+                    bucket_name="episode-audio-files",
+                    file_name=audio_filename,
+                )
+
+                print(f"Upload to Supabase completed: {audio_file_response}")
+
+                transcription = self.transcribe_from_file(file_name=audio_filename)
+                print(f"Transcription completed: {len(transcription)} characters")
             else:
-                print("Failed to download file.")
+                print("Failed to transcribe the episode.")
+                return None
 
-            supabase_service = SupabaseService()
-            supabase_service.upload_file(
-                bucket_name="episode-audio-files",
-                file_name="podcast.mp3",
-            )
+        with open(transcription_filename, "w") as file:
+            file.write(transcription)
 
-            transcription = self.transcribe_from_file(file_name="podcast.mp3")
+        episode_transcription_response = supabase_service.upload_file(
+            bucket_name="episode-transcriptions",
+            file_name=transcription_filename,
+        )
+        print(f"Upload to Supabase completed: {episode_transcription_response}")
 
-        return transcription
-
-
+        return len(transcription)

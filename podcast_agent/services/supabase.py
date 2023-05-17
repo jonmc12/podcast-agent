@@ -24,4 +24,4 @@ class SupabaseService:
             )
             return json.dumps(response.json())
         except Exception as e:
-            print(f"An error occurred while fetching podcast: {e}")
+            print(f"An error occurred while uploading file: {e}")
