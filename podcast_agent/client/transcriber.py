@@ -33,7 +33,7 @@ class Transcriber:
                     temp_file.write(audio_file.content)
                     temp_file_name = temp_file.name
                     temp_file.seek(0)
-                    transcript = self.local_file_to_transcription(url)
+                    transcript = self.local_file_to_transcription(temp_file.name)
 
         return transcript
 
