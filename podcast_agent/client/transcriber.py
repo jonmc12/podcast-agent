@@ -33,15 +33,7 @@ class Transcriber:
                     temp_file.write(audio_file.content)
                     temp_file_name = temp_file.name
                     temp_file.seek(0)
-
-                    song = AudioSegment.from_mp3(temp_file.name)
-                    ten_minutes = 10 * 60 * 1000
-                    segments = self.get_segments(song, 10**5)
-                    [segment.export(temp_file.name + f'_{i}' for i, segment in enumerate(segments))]
-
-                    transcript_segments = [self.local_file_to_transcription(open(temp_file.name + f'_{i}', 'rb')) for  i in range(len(segments)) ]
-
-                    transcript = ''.join(transcript_segments)#self.local_file_to_transcription(open(temp_file_name, 'rb'))
+                    transcript = self.local_file_to_transcription(url)
 
         return transcript
 
@@ -65,16 +57,11 @@ class Transcriber:
 
         num_segments = 1 + (len(audio)//mSS)
 
-        def write_temp_file(abs_path, content):
-            with open(abs_path, 'wb') as target:
-                target.write(content)
-        
-        num_threads = os.cpu_count()
-
         for i in range(num_segments):
             audio[i:(i + 1)*mSS].export(prefix + f'_{i}.mp3')  
-        out = []
         
+        out = []
+
         for i in range(num_segments):
             transcript = openai.Audio.transcribe("whisper-1", open(prefix + f'_{i}.mp3', 'rb'))
             os.remove(prefix + f'_{i}.mp3')
