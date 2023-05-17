@@ -1,6 +1,7 @@
 import tempfile
 import openai
 import os
+from pydub import AudioSegment
 
 class Transcriber:
     def __init__(self):
@@ -21,7 +22,7 @@ class Transcriber:
         #returns: text transcription of file
 
         if os.path.exists(url):
-            transcript = self.local_file_to_transcription(open(url, "rb"))
+            transcript = self.local_file_to_transcription(url)
         
         elif url.startswith('https://'):
             if url.startswith('https://www.listennotes'):
@@ -32,14 +33,49 @@ class Transcriber:
                     temp_file.write(audio_file.content)
                     temp_file_name = temp_file.name
                     temp_file.seek(0)
-                    transcript = self.local_file_to_transcription(open(temp_file_name, 'rb'))
+
+                    song = AudioSegment.from_mp3(temp_file.name)
+                    ten_minutes = 10 * 60 * 1000
+                    segments = self.get_segments(song, 10**5)
+                    [segment.export(temp_file.name + f'_{i}' for i, segment in enumerate(segments))]
+
+                    transcript_segments = [self.local_file_to_transcription(open(temp_file.name + f'_{i}', 'rb')) for  i in range(len(segments)) ]
+
+                    transcript = ''.join(transcript_segments)#self.local_file_to_transcription(open(temp_file_name, 'rb'))
 
         return transcript
 
-    def local_file_to_transcription(self, fileToTranscribe):
+    def get_segments(self, L, mSS):
+        return [L[i:(i + 1)*mSS] for i in range(len(L)//mSS) + 1]
+
+
+    def local_file_to_transcription(self, path_to_file_to_transcribe):
         #call openai transcription API on given file
         #
-        #fileToTranscribe: file like object
+        #path_to_file_to_transcribe: path to a file
         #returns: text transcription of file
+        import os
         
-        return  openai.Audio.transcribe("whisper-1", fileToTranscribe)
+        if not os.path.isfile(path_to_file_to_transcribe):
+            raise FileNotFoundError(f'[Errno 2] no such file {path_to_file_to_transcribe}')
+
+        audio = AudioSegment.from_mp3(path_to_file_to_transcribe)
+        prefix = path_to_file_to_transcribe.replace('.mp3', '')
+        mSS = 6*(10**5)
+        print(1 + (len(audio)//mSS))
+
+        def write_temp_file(abs_path, content):
+            with open(abs_path, 'wb') as target:
+                target.write(content)
+        
+        num_threads = os.cpu_count()
+
+        for i in range(1 + (len(audio)//mSS)):
+            audio[i:(i + 1)*mSS].export(prefix + f'_{i}.mp3')  
+
+        for i in range(len(audio)//mSS):
+            trancript = openai.Audio.transcribe("whisper-1", open(prefix + f'_{i}.mp3', 'rb'))
+            os.remove(prefix + f'_{i}.mp3')
+            out.append(transcript)
+        
+        return ''.join(out)
