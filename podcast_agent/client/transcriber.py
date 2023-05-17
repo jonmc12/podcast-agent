@@ -69,7 +69,7 @@ class TranscriberClient:
         num_segments = 1 + (len(audio)//mSS)
 
         for i in range(num_segments):
-            audio[i:(i + 1)*mSS].export(prefix + f'_{i}.mp3')  
+            audio[i*mSS:(i + 1)*mSS].export(prefix + f'_{i}.mp3')  
         
         out = []
 
