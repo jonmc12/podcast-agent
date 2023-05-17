@@ -2,6 +2,8 @@ podcast-api
 python-dotenv
 black
 supabase
+pydub
 openai
 pytest
 pytest-asyncio
+ffprobe
