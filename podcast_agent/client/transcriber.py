@@ -1,6 +1,6 @@
 import os
 import tempfile
-from typing import Any, BinaryIO, Union
+from typing import Any, Union
 from pydub import AudioSegment
 
 import openai
@@ -45,7 +45,7 @@ class TranscriberClient:
         return transcript
 
     def get_segments(self, L, mSS):
-        return [L[i:(i + 1)*mSS] for i in range(len(L)//mSS) + 1]
+        return [L[i:i+mSS] for i in range(0, len(L), mSS)]
 
     def local_file_to_transcription(
             self,
