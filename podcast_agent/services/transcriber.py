@@ -23,7 +23,7 @@ class TranscriberService:
         Transcribe a local file
         """
         return self.client.local_file_to_transcription(
-            file_to_transcribe=open(file_name, "rb"),
+            path_to_file_to_transcribe=file_name,
         )
 
     def transcribe_from_url(self, url: str):
