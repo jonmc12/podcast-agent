@@ -2,4 +2,6 @@ podcast-api
 python-dotenv
 black
 supabase
+pydub
 openai
+ffprobe
