@@ -1,12 +1,27 @@
 import json
-from podcast_agent.client.podcast_api import get_client
+from podcast_agent.client.podcast_api import PodcastApiClient
 
-def get_podcast():
-    client = get_client()
+class PodcastApiService:
+    """
+    A class to interact with Podcast API via PodcastApiClient.
+    """
 
-    response = client.fetch_podcast_by_id(
-        id='4d3fe717742d4963a85562e9f84d8c79',
-        next_episode_pub_date=1479154463000,
-        sort='recent_first',
-    )
-    print(json.dumps(response.json()))
+    def __init__(self):
+        """
+        Initialize Podcast API service with PodcastApiClient.
+        """
+        self.client = PodcastApiClient()
+
+    def get_podcast(self, id: str, next_episode_pub_date: int, sort: str):
+        """
+        Fetch podcast by id using Podcast API.
+        """
+        try:
+            response = self.client.fetch_podcast_by_id(
+                id=id,
+                next_episode_pub_date=next_episode_pub_date,
+                sort=sort,
+            )
+            print(json.dumps(response.json()))
+        except Exception as e:
+            print(f"An error occurred while fetching podcast: {e}")
