@@ -1,6 +1,8 @@
 import os
 from typing import Any
+
 from supabase.client import Client, create_client
+
 
 class SupabaseClient:
     """

@@ -1,3 +1,5 @@
 podcast_agent.egg-info/
 **/__pycache__/
 *.mp3
+.env
+.pytest_cache/
