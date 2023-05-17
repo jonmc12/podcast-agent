@@ -35,7 +35,7 @@ class PodcastApiService:
                 id=id,
                 show_transcript=show_transcript,
             )
-            print(json.dumps(response))
+
             return response
         except Exception as e:
             print(f"An error occurred while fetching episode: {e}")
