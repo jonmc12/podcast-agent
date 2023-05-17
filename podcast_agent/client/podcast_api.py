@@ -39,3 +39,21 @@ class PodcastApiClient:
                 params=params
             ) as response:
                 return await response.json()
+
+    async def fetch_episode_by_id(
+            self,
+            id: str,
+            show_transcript: int,
+        ) -> dict:
+        """
+        Fetch podcast by id.
+        """
+        url = f"{self.BASE_URL}/episodes/{id}"
+        params = {'show_transcript': show_transcript}
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                url,
+                headers=self.headers,
+                params=params
+            ) as response:
+                return await response.json()

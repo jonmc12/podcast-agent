@@ -1,3 +1,4 @@
+import json
 from podcast_agent.client.podcast_api import PodcastApiClient
 
 class PodcastApiService:
@@ -24,3 +25,17 @@ class PodcastApiService:
             return response
         except Exception as e:
             print(f"An error occurred while fetching podcast: {e}")
+
+    async def get_episode(self, id: str, show_transcript: int):
+        """
+        Fetch episode by id using Podcast API.
+        """
+        try:
+            response = await self.client.fetch_episode_by_id(
+                id=id,
+                show_transcript=show_transcript,
+            )
+            print(json.dumps(response))
+            return response
+        except Exception as e:
+            print(f"An error occurred while fetching episode: {e}")

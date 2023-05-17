@@ -13,12 +13,12 @@ class SupabaseService:
         """
         self.client = SupabaseClient()
 
-    async def upload_file(self, bucket_name: str, file_name: str):
+    def upload_file(self, bucket_name: str, file_name: str):
         """
         Upload file to Supabase storage bucket
         """
         try:
-            response = await self.client.upload_file(
+            response = self.client.upload_file(
                 bucket_name=bucket_name,
                 file_name=file_name,
             )
