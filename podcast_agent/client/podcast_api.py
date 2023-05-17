@@ -1,11 +1,14 @@
 import os
-from typing import Any
-from listennotes import podcast_api
+
+import aiohttp
+
+# from listennotes import podcast_api
 
 class PodcastApiClient:
     """
     A class to interact with ListenNotes Podcast services.
     """
+    BASE_URL = "https://listen-api.listennotes.com/api/v2"
 
     def __init__(self):
         """
@@ -15,21 +18,42 @@ class PodcastApiClient:
             self.api_key: str = os.environ['LISTENNOTES_API_KEY']
         except KeyError:
             raise ValueError("The LISTENNOTES_API_KEY environment variable must be set.")
-        self.client = podcast_api.Client(api_key=self.api_key)
-
-    def get_client(self) -> podcast_api.Client:
-        """
-        Get the Podcast API client.
-        """
-        return self.client
+        # self.client = podcast_api.Client(api_key=self.api_key)
+        self.headers = {"X-ListenAPI-Key": self.api_key}
     
-    def fetch_podcast_by_id(
-            self, id: str, next_episode_pub_date: int, sort: str
-        ) -> Any:
+    async def fetch_podcast_by_id(
+            self,
+            id: str,
+            next_episode_pub_date: int,
+            sort: str
+        ) -> dict:
         """
         Fetch podcast by id.
         """
-        return self.client.fetch_podcast_by_id(
-            id=id, 
-            next_episode_pub_date=next_episode_pub_date, sort=sort
-        )
+        url = f"{self.BASE_URL}/podcasts/{id}"
+        params = {'next_episode_pub_date': next_episode_pub_date}
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                url,
+                headers=self.headers,
+                params=params
+            ) as response:
+                return await response.json()
+
+    async def fetch_episode_by_id(
+            self,
+            id: str,
+            show_transcript: int,
+        ) -> dict:
+        """
+        Fetch podcast by id.
+        """
+        url = f"{self.BASE_URL}/episodes/{id}"
+        params = {'show_transcript': show_transcript}
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                url,
+                headers=self.headers,
+                params=params
+            ) as response:
+                return await response.json()

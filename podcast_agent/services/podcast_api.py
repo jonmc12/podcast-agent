@@ -12,16 +12,30 @@ class PodcastApiService:
         """
         self.client = PodcastApiClient()
 
-    def get_podcast(self, id: str, next_episode_pub_date: int, sort: str):
+    async def get_podcast(self, id: str, next_episode_pub_date: int, sort: str):
         """
         Fetch podcast by id using Podcast API.
         """
         try:
-            response = self.client.fetch_podcast_by_id(
+            response = await self.client.fetch_podcast_by_id(
                 id=id,
                 next_episode_pub_date=next_episode_pub_date,
                 sort=sort,
             )
-            print(json.dumps(response.json()))
+            return response
         except Exception as e:
             print(f"An error occurred while fetching podcast: {e}")
+
+    async def get_episode(self, id: str, show_transcript: int):
+        """
+        Fetch episode by id using Podcast API.
+        """
+        try:
+            response = await self.client.fetch_episode_by_id(
+                id=id,
+                show_transcript=show_transcript,
+            )
+            print(json.dumps(response))
+            return response
+        except Exception as e:
+            print(f"An error occurred while fetching episode: {e}")

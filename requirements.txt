@@ -4,4 +4,6 @@ black
 supabase
 pydub
 openai
+pytest
+pytest-asyncio
 ffprobe
