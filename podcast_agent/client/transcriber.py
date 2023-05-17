@@ -61,8 +61,9 @@ class Transcriber:
 
         audio = AudioSegment.from_mp3(path_to_file_to_transcribe)
         prefix = path_to_file_to_transcribe.replace('.mp3', '')
-        mSS = 6*(10**5)
-        print(1 + (len(audio)//mSS))
+        mSS = 6*(10**4)
+
+        num_segments = 1 + (len(audio)//mSS)
 
         def write_temp_file(abs_path, content):
             with open(abs_path, 'wb') as target:
@@ -70,12 +71,13 @@ class Transcriber:
         
         num_threads = os.cpu_count()
 
-        for i in range(1 + (len(audio)//mSS)):
+        for i in range(num_segments):
             audio[i:(i + 1)*mSS].export(prefix + f'_{i}.mp3')  
-
-        for i in range(len(audio)//mSS):
-            trancript = openai.Audio.transcribe("whisper-1", open(prefix + f'_{i}.mp3', 'rb'))
+        out = []
+        
+        for i in range(num_segments):
+            transcript = openai.Audio.transcribe("whisper-1", open(prefix + f'_{i}.mp3', 'rb'))
             os.remove(prefix + f'_{i}.mp3')
-            out.append(transcript)
+            out.append(transcript.text)
         
         return ''.join(out)
