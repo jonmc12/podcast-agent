@@ -2,3 +2,4 @@ podcast-api
 python-dotenv
 black
 supabase
+openai
